@@ -126,6 +126,40 @@ async function processTextEditor(textEditor: TextEditor, config?: OptimizeOption
   await setText(data, textEditor);
 }
 
+const minifyTextDocument = async (textDocument: TextDocument) => {
+  if (!isSvg(textDocument)) {
+    return;
+  }
+
+  const config = await getConfig({
+    js2svg: {
+      pretty: false,
+    },
+  });
+  const {data} = optimize(textDocument.getText(), config);
+  const textEditor = await window.showTextDocument(textDocument);
+  await setText(data, textEditor);
+};
+
+const prettifyTextDocument = async (textDocument: TextDocument) => {
+  if (!isSvg(textDocument)) {
+    return;
+  }
+
+  const config = await getConfig({
+    js2svg: {
+      pretty: true,
+    },
+  });
+  const {data} = optimize(textDocument.getText(), config);
+  const textEditor = await window.showTextDocument(textDocument);
+  await setText(data, textEditor);
+};
+
+function getTextDocuments(): TextDocument[] {
+  return workspace.textDocuments.filter(textDocument => isSvg(textDocument));
+}
+
 async function minify() {
   if (!window.activeTextEditor) {
     return;
@@ -147,6 +181,25 @@ async function minify() {
       await window.showErrorMessage(error.message);
     }
   }
+}
+
+async function minifyAll() {
+  await Promise.all(getTextDocuments().map(async textDocument => minifyTextDocument(textDocument)));
+  await window.showInformationMessage('Minified all SVG files');
+}
+
+async function prettify() {
+  if (!window.activeTextEditor) {
+    return;
+  }
+
+  await prettifyTextDocument(window.activeTextEditor.document);
+  await window.showInformationMessage('Prettified current SVG file');
+}
+
+async function prettifyAll() {
+  await Promise.all(getTextDocuments().map(async textDocument => prettifyTextDocument(textDocument)));
+  await window.showInformationMessage('Prettified all SVG files');
 }
 
 async function format() {
@@ -176,6 +229,9 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand('svgo.minify', minify),
     commands.registerCommand('svgo.format', format),
+    commands.registerCommand('svgo.minify-all', minifyAll),
+    commands.registerCommand('svgo.prettify', prettify),
+    commands.registerCommand('svgo.prettify-all', prettifyAll),
   );
 }
 
