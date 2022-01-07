@@ -1,3 +1,8 @@
 src/*.ts
 tsconfig.json
 test.svg
+node_modules
+vscode-svgo.code-workspace
+.github
+.gitignore
+.tool-versions

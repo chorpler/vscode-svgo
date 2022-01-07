@@ -1,3 +1,7 @@
+/*---------------------------------------------------------
+ * Copyright (C) Microsoft Corporation. All rights reserved.
+ *--------------------------------------------------------*/
+
 import {Uri, FileType, commands, window, workspace} from 'vscode';
 import type {ExtensionContext, TextDocument, TextEditor} from 'vscode';
 import setText from 'vscode-set-text';
